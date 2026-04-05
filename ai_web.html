@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebCraft — AI Website Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;1,400&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#16151a;
+  --s1:#1d1c22;
+  --s2:#252329;
+  --s3:#2e2c34;
+  --border:#323038;
+  --border2:#3e3c45;
+  --accent:#c4a882;
+  --accent2:#a08860;
+  --accent-dim:rgba(196,168,130,.12);
+  --accent-dim2:rgba(196,168,130,.05);
+  --text:#e8e4de;
+  --text2:#9e9a94;
+  --text3:#5c5958;
+  --green:#7db87d;
+  --red:#c47a7a;
+  --mono:'IBM Plex Mono',monospace;
+  --sans:'IBM Plex Sans',sans-serif;
+}
+
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px}
+
+#app{display:grid;grid-template-rows:48px 1fr;grid-template-columns:300px 1fr;height:100vh}
+
+/* TOPBAR */
+#topbar{grid-column:1/-1;display:flex;align-items:center;background:var(--s1);border-bottom:1px solid var(--border)}
+
+.logo-wrap{display:flex;align-items:center;gap:10px;padding:0 18px;height:100%;border-right:1px solid var(--border);min-width:180px}
+.logo-mark{width:22px;height:22px;border-radius:5px;background:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo-mark svg{width:12px;height:12px;fill:var(--bg)}
+.logo-name{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--text);letter-spacing:.3px}
+.logo-dot{color:var(--accent)}
+
+.view-tabs{display:flex;height:100%;border-right:1px solid var(--border)}
+.vtab{display:flex;align-items:center;gap:7px;padding:0 16px;font-family:var(--mono);font-size:11px;color:var(--text3);cursor:pointer;border:none;background:transparent;border-bottom:2px solid transparent;transition:.15s;white-space:nowrap}
+.vtab:hover{color:var(--text2);background:var(--accent-dim2)}
+.vtab.active{color:var(--text);border-bottom-color:var(--accent)}
+.vtab svg{width:13px;height:13px;opacity:.5;flex-shrink:0}
+.vtab.active svg{opacity:1}
+
+.key-area{display:flex;align-items:center;gap:10px;padding:0 16px;margin-left:auto;border-left:1px solid var(--border)}
+.key-label{font-family:var(--mono);font-size:10px;color:var(--text3)}
+#api-input{background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:11px;padding:5px 10px;width:200px;outline:none}
+#api-input:focus{border-color:var(--accent)}
+#api-input::placeholder{color:var(--text3)}
+#key-dot{width:7px;height:7px;border-radius:50%;background:var(--border2);transition:.3s;flex-shrink:0}
+#key-dot.ok{background:var(--green)}
+#key-dot.err{background:var(--red)}
+
+/* SIDEBAR */
+#sidebar{background:var(--s1);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+
+.side-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0}
+.stab{flex:1;text-align:center;padding:9px;font-family:var(--mono);font-size:10px;letter-spacing:.5px;color:var(--text3);cursor:pointer;border-bottom:1px solid transparent;transition:.15s}
+.stab:hover{color:var(--text2)}
+.stab.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+#quick{padding:10px;border-bottom:1px solid var(--border);display:flex;flex-wrap:wrap;gap:5px;flex-shrink:0}
+.qbtn{padding:4px 9px;font-family:var(--mono);font-size:10px;border:1px solid var(--border);border-radius:4px;background:transparent;color:var(--text3);cursor:pointer;transition:.15s}
+.qbtn:hover{border-color:var(--accent2);color:var(--accent);background:var(--accent-dim2)}
+
+#msgs{flex:1;overflow-y:auto;padding:14px 12px;display:flex;flex-direction:column;gap:14px}
+#msgs::-webkit-scrollbar{width:3px}
+#msgs::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+.msg{animation:up .2s ease;font-size:12px;line-height:1.65}
+@keyframes up{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.msg-user{align-self:flex-end;background:var(--s3);border:1px solid var(--border2);padding:8px 12px;border-radius:10px 10px 2px 10px;color:var(--text);max-width:94%}
+.msg-ai{align-self:flex-start;background:var(--s2);border:1px solid var(--border);border-left:2px solid var(--accent);padding:8px 12px;border-radius:2px 10px 10px 10px;color:var(--text);max-width:94%}
+.msg-ai code{font-family:var(--mono);font-size:10px;background:var(--bg);color:var(--accent);padding:1px 4px;border-radius:3px}
+.msg-sys{align-self:center;font-family:var(--mono);font-size:10px;color:var(--text3);padding:2px 0}
+
+.typing{align-self:flex-start;display:flex;align-items:center;gap:5px;background:var(--s2);border:1px solid var(--border);border-left:2px solid var(--accent);padding:10px 14px;border-radius:2px 10px 10px 10px}
+.typing span{width:5px;height:5px;border-radius:50%;background:var(--accent);opacity:.4;animation:bounce .9s infinite}
+.typing span:nth-child(2){animation-delay:.15s}
+.typing span:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,80%,100%{opacity:.4;transform:scale(1)}40%{opacity:1;transform:scale(1.3)}}
+
+#input-wrap{padding:12px;border-top:1px solid var(--border);flex-shrink:0}
+#msg-input{width:100%;background:var(--s2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--sans);font-size:12px;padding:10px 12px;resize:none;outline:none;line-height:1.6;min-height:72px;transition:.15s}
+#msg-input:focus{border-color:var(--accent)}
+#msg-input::placeholder{color:var(--text3)}
+.input-row{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+.input-hint{font-family:var(--mono);font-size:9px;color:var(--text3)}
+.btn-row{display:flex;gap:6px}
+
+.btn{font-family:var(--mono);font-size:11px;border-radius:6px;cursor:pointer;padding:6px 14px;border:1px solid;transition:.15s;outline:none}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.btn-primary:hover{background:var(--accent2);border-color:var(--accent2)}
+.btn-primary:disabled{opacity:.35;cursor:not-allowed}
+.btn-ghost{background:transparent;border-color:var(--border2);color:var(--text3)}
+.btn-ghost:hover{color:var(--text);border-color:var(--text3)}
+
+#hist-pane{display:none;flex:1;overflow-y:auto;padding:8px;flex-direction:column}
+#hist-pane::-webkit-scrollbar{width:3px}
+#hist-pane::-webkit-scrollbar-thumb{background:var(--border2)}
+.hitem{padding:8px 10px;border:1px solid var(--border);border-radius:6px;cursor:pointer;margin-bottom:5px;transition:.15s;background:var(--s2)}
+.hitem:hover{border-color:var(--border2);background:var(--s3)}
+.hitem-q{font-size:11px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:3px}
+.hitem-d{font-size:10px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hitem-m{font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:4px}
+
+/* MAIN */
+#main{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+
+#toolbar{display:flex;align-items:center;gap:8px;padding:0 12px;height:40px;background:var(--s1);border-bottom:1px solid var(--border);flex-shrink:0}
+.url-bar{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:4px 11px;font-family:var(--mono);font-size:10px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tb-btn{background:transparent;border:1px solid var(--border);border-radius:5px;color:var(--text3);cursor:pointer;padding:4px 10px;font-family:var(--mono);font-size:10px;transition:.15s}
+.tb-btn:hover{color:var(--text);border-color:var(--border2)}
+
+#view-wrap{flex:1;position:relative;overflow:hidden;display:flex;flex-direction:column}
+#pbar{position:absolute;top:0;left:0;height:2px;width:0%;background:var(--accent);z-index:10;transition:width .2s}
+#preview-frame{flex:1;width:100%;border:none;background:#fff}
+#src-view{display:none;flex:1;overflow:auto;padding:16px;font-family:var(--mono);font-size:11px;line-height:1.8;white-space:pre-wrap;word-break:break-all;color:var(--text2);background:var(--bg)}
+#src-view::-webkit-scrollbar{width:3px}
+#src-view::-webkit-scrollbar-thumb{background:var(--border2)}
+
+#empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:var(--bg);pointer-events:none}
+#empty.gone{display:none}
+.empty-icon{width:40px;height:40px;border-radius:10px;background:var(--s2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center}
+.empty-icon svg{width:20px;height:20px;stroke:var(--text3);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.empty-title{font-size:14px;font-weight:500;color:var(--text2)}
+.empty-sub{font-family:var(--mono);font-size:10px;color:var(--text3);text-align:center;line-height:1.9;max-width:240px}
+
+#sbar{display:flex;align-items:center;height:24px;background:var(--s1);border-top:1px solid var(--border);flex-shrink:0}
+.sb{display:flex;align-items:center;gap:5px;padding:0 12px;height:100%;border-right:1px solid var(--border);font-family:var(--mono);font-size:9px;color:var(--text3);white-space:nowrap;flex-shrink:0}
+.sb.accent-text{color:var(--accent)}
+.sb-dot{width:5px;height:5px;border-radius:50%;background:var(--green)}
+.sb-end{margin-left:auto;padding-right:12px;font-family:var(--mono);font-size:9px;color:var(--text3)}
+
+.t-tag{color:#8fa8c8}.t-attr{color:#a8c8a0}.t-val{color:#c8a880}.t-cmt{color:var(--text3);font-style:italic}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="topbar">
+    <div class="logo-wrap">
+      <div class="logo-mark">
+        <svg viewBox="0 0 12 12"><path d="M2 2h8v2H2zM2 5h5v2H2zM2 8h7v2H2z"/></svg>
+      </div>
+      <div class="logo-name">webcraft<span class="logo-dot">.</span>ai</div>
+    </div>
+    <div class="view-tabs">
+      <button class="vtab active" onclick="setView('preview')">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="1" y="2" width="12" height="10" rx="1.5"/><path d="M1 5h12"/></svg>
+        Preview
+      </button>
+      <button class="vtab" onclick="setView('code')">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 4L1.5 7 4 10M10 4l2.5 3-2.5 3"/></svg>
+        Source
+      </button>
+    </div>
+    <div class="key-area">
+      <div class="key-label">api key</div>
+      <input id="api-input" type="password" placeholder="sk-ant-api03-..." oninput="onKey(this.value)" autocomplete="off">
+      <div id="key-dot"></div>
+    </div>
+  </div>
+
+  <div id="sidebar">
+    <div class="side-tabs">
+      <div class="stab active" onclick="switchTab('chat')">Chat</div>
+      <div class="stab" onclick="switchTab('history')">History</div>
+    </div>
+    <div id="chat-pane" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+      <div id="quick">
+        <button class="qbtn" onclick="q('Dark SaaS landing page with animated hero, feature grid, and pricing table')">SaaS</button>
+        <button class="qbtn" onclick="q('Clean portfolio for a designer with case studies and contact form')">Portfolio</button>
+        <button class="qbtn" onclick="q('E-commerce product page with image gallery, variants, and cart')">Shop</button>
+        <button class="qbtn" onclick="q('Minimal blog with featured article and responsive post grid')">Blog</button>
+        <button class="qbtn" onclick="q('Restaurant site with full-screen hero, menu, gallery, and reservations')">Restaurant</button>
+        <button class="qbtn" onclick="q('Agency homepage with bold typography, services, and team section')">Agency</button>
+        <button class="qbtn" onclick="q('Add a sticky navigation with smooth scroll links')">+ Navbar</button>
+        <button class="qbtn" onclick="q('Improve the overall design with better spacing and visual hierarchy')">↑ Design</button>
+        <button class="qbtn" onclick="q('Add a dark/light mode toggle button')">+ Theme</button>
+        <button class="qbtn" onclick="q('Make fully responsive with a mobile hamburger menu')">Responsive</button>
+        <button class="qbtn" onclick="q('Add a footer with links and social icons')">+ Footer</button>
+        <button class="qbtn" onclick="q('Add scroll-triggered animations using Intersection Observer')">+ Scroll FX</button>
+      </div>
+      <div id="msgs"></div>
+      <div id="input-wrap">
+        <textarea id="msg-input" placeholder="Describe a website or request changes…" onkeydown="onKD(event)"></textarea>
+        <div class="input-row">
+          <span class="input-hint">⌘↵ to send</span>
+          <div class="btn-row">
+            <button class="btn btn-ghost" onclick="clearAll()">Clear</button>
+            <button class="btn btn-primary" id="send-btn" onclick="send()">Build →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="hist-pane"></div>
+  </div>
+
+  <div id="main">
+    <div id="toolbar">
+      <button class="tb-btn" onclick="refresh()">↺</button>
+      <div class="url-bar" id="url-bar">about:blank</div>
+      <button class="tb-btn" onclick="dl()">↓ Download</button>
+      <button class="tb-btn" id="cp-btn" onclick="cp()">Copy</button>
+      <button class="tb-btn" onclick="opentab()">Open ↗</button>
+    </div>
+    <div id="view-wrap">
+      <div id="pbar"></div>
+      <iframe id="preview-frame" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+      <div id="src-view"></div>
+      <div id="empty">
+        <div class="empty-icon">
+          <svg viewBox="0 0 20 20"><rect x="2" y="3" width="16" height="14" rx="2"/><path d="M2 7h16"/><circle cx="5.5" cy="5" r=".8" fill="currentColor" stroke="none"/><circle cx="8" cy="5" r=".8" fill="currentColor" stroke="none"/></svg>
+        </div>
+        <div class="empty-title">No website yet</div>
+        <div class="empty-sub">Describe what you want to build<br>and press Build →</div>
+      </div>
+    </div>
+    <div id="sbar">
+      <div class="sb accent-text"><div class="sb-dot"></div><span id="st-txt">Ready</span></div>
+      <div class="sb"><span>claude-sonnet-4-20250514</span></div>
+      <div class="sb"><span id="lines-txt">—</span></div>
+      <div class="sb-end" id="turns-txt">0 turns</div>
+    </div>
+  </div>
+</div>
+
+<script>
+let pageHTML='',history=JSON.parse(localStorage.getItem('wc3_hist')||'[]'),turns=[],busy=false,curView='preview',prog=0,progTimer=null;
+
+const keyEl=document.getElementById('api-input');
+const savedKey=localStorage.getItem('wc3_key')||'';
+if(savedKey){keyEl.value=savedKey;setDot(savedKey);}
+
+function onKey(v){localStorage.setItem('wc3_key',v);setDot(v);}
+function setDot(v){document.getElementById('key-dot').className=v.startsWith('sk-ant-')?'ok':v.length>6?'err':'';}
+function getKey(){return keyEl.value.trim()||localStorage.getItem('wc3_key')||'';}
+
+function setView(v){
+  curView=v;
+  document.querySelectorAll('.vtab').forEach((t,i)=>t.classList.toggle('active',['preview','code'][i]===v));
+  const fr=document.getElementById('preview-frame'),sv=document.getElementById('src-view');
+  if(v==='preview'){fr.style.display='block';sv.style.display='none';}
+  else{fr.style.display='none';sv.style.display='block';if(pageHTML)renderSrc(pageHTML);}
+}
+
+function switchTab(t){
+  document.querySelectorAll('.stab').forEach((el,i)=>el.classList.toggle('active',['chat','history'][i]===t));
+  document.getElementById('chat-pane').style.display=t==='chat'?'flex':'none';
+  const hp=document.getElementById('hist-pane');
+  hp.style.display=t==='history'?'flex':'none';
+  if(t==='history')renderHistory();
+}
+
+function addMsg(type,text){
+  const box=document.getElementById('msgs'),el=document.createElement('div');
+  el.className='msg msg-'+type;
+  if(type==='ai')el.innerHTML=esc(text).replace(/`([^`]+)`/g,'<code>$1</code>');
+  else el.textContent=text;
+  box.appendChild(el);box.scrollTop=box.scrollHeight;return el;
+}
+function addTyping(){
+  const box=document.getElementById('msgs'),el=document.createElement('div');
+  el.className='typing';el.innerHTML='<span></span><span></span><span></span>';
+  box.appendChild(el);box.scrollTop=box.scrollHeight;return el;
+}
+
+function q(t){document.getElementById('msg-input').value=t;document.getElementById('msg-input').focus();}
+function onKD(e){if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();send();}}
+
+function startProg(){
+  prog=0;setProg(10);
+  progTimer=setInterval(()=>{if(!busy||prog>=85){clearInterval(progTimer);return;}setProg(prog+Math.random()*7);},400);
+}
+function setProg(v){
+  prog=Math.min(v,100);
+  document.getElementById('pbar').style.width=prog+'%';
+  if(prog>=100)setTimeout(()=>{document.getElementById('pbar').style.width='0%';},500);
+}
+function setSt(t){document.getElementById('st-txt').textContent=t;}
+
+async function send(){
+  if(busy)return;
+  const inp=document.getElementById('msg-input'),text=inp.value.trim();
+  if(!text)return;
+  const key=getKey();
+  if(!key){addMsg('sys','Please add your Anthropic API key above.');return;}
+  inp.value='';busy=true;
+  document.getElementById('send-btn').disabled=true;
+  document.getElementById('send-btn').textContent='Building…';
+  setSt('Building');startProg();
+  addMsg('user',text);
+  const loader=addTyping();
+
+  const sys=`You are WebCraft AI, an expert web developer and designer. Generate complete, single-file HTML websites.
+
+RULES:
+1. Output a COMPLETE valid HTML document starting with <!DOCTYPE html>
+2. All CSS in <style> in <head>. All JS in <script> before </body>
+3. Import Google Fonts via @import — use distinctive, non-generic font pairings
+4. Design must be visually refined, modern, and responsive with smooth transitions
+5. Include realistic placeholder content and copy
+6. On a new line after the HTML, write: DESC: [one-line description]
+
+${pageHTML?`CURRENT PAGE:\n\`\`\`html\n${pageHTML}\n\`\`\`\nModify per request. Return the COMPLETE updated HTML.`:'Build a new website from scratch.'}`;
+
+  turns.push({role:'user',content:text});
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:8000,system:sys,messages:turns.slice(-10)})
+    });
+    loader.remove();
+    if(!res.ok){const err=await res.json().catch(()=>({}));throw new Error(err.error?.message||'HTTP '+res.status);}
+    const data=await res.json(),full=data.content?.[0]?.text||'';
+    let extracted='';
+    const block=full.match(/```html\n?([\s\S]*?)```/i);
+    if(block)extracted=block[1].trim();
+    else{const s=full.search(/<!DOCTYPE|<html/i);if(s!==-1){const e=full.lastIndexOf('</html>');extracted=full.slice(s,e!==-1?e+7:undefined).trim();}}
+    const dm=full.match(/DESC:\s*(.+)/i),desc=dm?dm[1].trim():'';
+    if(extracted){
+      pageHTML=extracted;setPreview(pageHTML);turns.push({role:'assistant',content:full});
+      saveHist(text,pageHTML,desc);
+      addMsg('ai',(desc||'Done.')+' Preview updated.');
+      setDot(key);
+      document.getElementById('lines-txt').textContent=pageHTML.split('\n').length.toLocaleString()+' lines';
+    }else{turns.push({role:'assistant',content:full});addMsg('ai',full.slice(0,500));}
+    document.getElementById('turns-txt').textContent=Math.floor(turns.length/2)+' turns';
+    setSt('Ready');setProg(100);
+  }catch(err){
+    loader.remove();addMsg('sys','Error: '+err.message);
+    document.getElementById('key-dot').className='err';setSt('Error');setProg(100);
+  }
+  clearInterval(progTimer);busy=false;
+  document.getElementById('send-btn').disabled=false;
+  document.getElementById('send-btn').textContent='Build →';
+}
+
+function setPreview(code){
+  document.getElementById('empty').classList.add('gone');
+  document.getElementById('preview-frame').srcdoc=code;
+  document.getElementById('url-bar').textContent='preview://generated-site.local';
+  if(curView==='code')renderSrc(code);
+}
+function refresh(){if(pageHTML)document.getElementById('preview-frame').srcdoc=pageHTML;}
+function opentab(){if(!pageHTML)return;const b=new Blob([pageHTML],{type:'text/html'});window.open(URL.createObjectURL(b),'_blank');}
+function dl(){
+  if(!pageHTML)return;
+  const a=document.createElement('a');a.href='data:text/html;charset=utf-8,'+encodeURIComponent(pageHTML);a.download='webcraft-site.html';a.click();
+}
+function cp(){
+  if(!pageHTML)return;
+  navigator.clipboard.writeText(pageHTML).then(()=>{
+    const b=document.getElementById('cp-btn');b.textContent='Copied ✓';setTimeout(()=>b.textContent='Copy',1500);
+  });
+}
+function renderSrc(code){
+  const el=document.getElementById('src-view');
+  let h=esc(code);
+  h=h.replace(/(&lt;!--[\s\S]*?--&gt;)/g,'<span class="t-cmt">$1</span>');
+  h=h.replace(/(&lt;\/?)([\w-]+)/g,'$1<span class="t-tag">$2</span>');
+  h=h.replace(/\s([\w:-]+)(=&quot;)/g,' <span class="t-attr">$1</span>$2');
+  h=h.replace(/(&quot;[^&]*?&quot;)/g,'<span class="t-val">$1</span>');
+  el.innerHTML=h;
+}
+function saveHist(prompt,code,desc){
+  history.unshift({prompt,html:code,desc,time:Date.now()});
+  if(history.length>40)history.pop();
+  localStorage.setItem('wc3_hist',JSON.stringify(history));
+}
+function renderHistory(){
+  const el=document.getElementById('hist-pane');
+  if(!history.length){el.innerHTML='<div style="padding:24px;text-align:center;color:var(--text3);font-size:11px">No history yet.</div>';return;}
+  el.innerHTML=history.map((h,i)=>`<div class="hitem" onclick="loadHist(${i})"><div class="hitem-q">${esc(h.prompt)}</div><div class="hitem-d">${esc(h.desc||'')}</div><div class="hitem-m">${timeAgo(h.time)} · ${(h.html||'').split('\n').length} lines</div></div>`).join('');
+}
+function loadHist(i){
+  const item=history[i];if(!item)return;
+  pageHTML=item.html;setPreview(pageHTML);addMsg('sys','Loaded: '+item.prompt.slice(0,60));switchTab('chat');
+}
+function clearAll(){
+  pageHTML='';turns=[];document.getElementById('msgs').innerHTML='';
+  document.getElementById('preview-frame').srcdoc='';document.getElementById('empty').classList.remove('gone');
+  document.getElementById('url-bar').textContent='about:blank';document.getElementById('lines-txt').textContent='—';
+  document.getElementById('turns-txt').textContent='0 turns';addMsg('sys','Cleared.');
+}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function timeAgo(ts){const d=Date.now()-ts;if(d<60000)return'just now';if(d<3600000)return Math.floor(d/60000)+'m ago';if(d<86400000)return Math.floor(d/3600000)+'h ago';return Math.floor(d/86400000)+'d ago';}
+
+switchTab('chat');
+setTimeout(()=>{
+  addMsg('sys','WebCraft AI ready.');
+  addMsg('ai','Hi! Paste your Anthropic API key in the header above, then describe any website — or pick a template to get started.');
+},100);
+</script>
+</body>
+</html>
