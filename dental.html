@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PearlDent — Dental Excellence & Care</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #f7f3ec;
+  --ivory: #fdfaf5;
+  --navy: #0c1e3a;
+  --navy-mid: #163256;
+  --teal: #1f7f7f;
+  --teal-light: #2fa8a8;
+  --teal-pale: #d6eeee;
+  --gold: #b8933a;
+  --gold-pale: #f5e9cf;
+  --muted: #5a6476;
+  --border: #e2d9cc;
+  --white: #ffffff;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body { font-family: 'Outfit', sans-serif; background: var(--ivory); color: var(--navy); overflow-x: hidden; }
+
+/* CURSOR */
+.cursor { width: 10px; height: 10px; background: var(--teal); border-radius: 50%; position: fixed; pointer-events: none; z-index: 9999; transition: transform 0.15s ease; mix-blend-mode: multiply; }
+.cursor-ring { width: 36px; height: 36px; border: 1.5px solid var(--teal); border-radius: 50%; position: fixed; pointer-events: none; z-index: 9998; opacity: 0.5; }
+
+/* PROGRESS BAR */
+.progress-bar { position: fixed; top: 0; left: 0; height: 2.5px; background: linear-gradient(90deg, var(--teal), var(--gold)); z-index: 1100; width: 0%; transition: width 0.08s linear; }
+
+/* NAVBAR */
+#navbar {
+  position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
+  padding: 1.4rem 6%;
+  display: flex; align-items: center; justify-content: space-between;
+  transition: background 0.4s, padding 0.4s, box-shadow 0.4s;
+}
+#navbar.scrolled {
+  background: rgba(253,250,245,0.96);
+  backdrop-filter: blur(16px);
+  padding: 1rem 6%;
+  box-shadow: 0 1px 0 var(--border), 0 4px 32px rgba(12,30,58,0.06);
+}
+.logo { font-family: 'Cormorant Garamond', serif; font-size: 1.75rem; font-weight: 700; color: var(--navy); text-decoration: none; }
+.logo em { font-style: italic; color: var(--teal); }
+.nav-links { display: flex; align-items: center; gap: 0.2rem; list-style: none; }
+.nav-links a {
+  text-decoration: none; color: var(--navy);
+  font-size: 0.875rem; font-weight: 500;
+  padding: 0.5rem 1rem; border-radius: 2rem;
+  transition: color 0.2s;
+  position: relative;
+}
+.nav-links a::after {
+  content: ''; position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%);
+  width: 0; height: 2px; background: var(--teal); border-radius: 2px;
+  transition: width 0.3s cubic-bezier(.25,.46,.45,.94);
+}
+.nav-links a:hover { color: var(--teal); }
+.nav-links a:hover::after,
+.nav-links a.active::after { width: calc(100% - 2rem); }
+.nav-links a.active { color: var(--teal); }
+.nav-cta { background: var(--navy) !important; color: var(--white) !important; padding: 0.6rem 1.5rem !important; border-radius: 2rem !important; font-weight: 600 !important; transition: background 0.25s, transform 0.2s !important; }
+.nav-cta::after { display: none !important; }
+.nav-cta:hover { background: var(--teal) !important; transform: translateY(-1px); color: var(--white) !important; }
+
+.hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 0.5rem; z-index: 1001; }
+.hamburger span { display: block; width: 24px; height: 2px; background: var(--navy); border-radius: 2px; transition: transform 0.35s, opacity 0.35s, width 0.35s; transform-origin: center; }
+.hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; width: 0; }
+.hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+.mobile-menu {
+  display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: var(--navy); z-index: 999;
+  flex-direction: column; align-items: center; justify-content: center;
+  gap: 1.8rem; opacity: 0; transition: opacity 0.35s;
+}
+.mobile-menu.open { opacity: 1; }
+.mobile-menu a { color: var(--white); font-size: 2rem; font-family: 'Cormorant Garamond', serif; font-weight: 600; text-decoration: none; transition: color 0.2s; }
+.mobile-menu a:hover { color: var(--teal-light); }
+.mobile-menu .m-cta { font-family: 'Outfit', sans-serif !important; font-size: 1rem !important; background: var(--teal); padding: 0.9rem 2.5rem; border-radius: 2rem; color: var(--white) !important; font-weight: 600 !important; margin-top: 0.5rem; }
+
+/* HERO */
+.hero { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; align-items: center; padding: 10rem 6% 5rem; gap: 5rem; position: relative; overflow: hidden; }
+.hero-bg { position: absolute; inset: 0; background: linear-gradient(135deg, var(--cream) 0%, var(--ivory) 60%, var(--teal-pale) 100%); z-index: 0; }
+.hero-blob {
+  position: absolute; right: -5%; top: 50%; transform: translateY(-50%);
+  width: 55%; aspect-ratio: 1;
+  border-radius: 38% 62% 63% 37% / 41% 44% 56% 59%;
+  background: linear-gradient(135deg, rgba(214,238,238,0.8), rgba(47,168,168,0.1));
+  z-index: 0;
+  animation: morphBlob 14s ease-in-out infinite;
+}
+@keyframes morphBlob {
+  0%,100% { border-radius: 38% 62% 63% 37% / 41% 44% 56% 59%; }
+  33% { border-radius: 58% 42% 34% 66% / 55% 63% 37% 45%; }
+  66% { border-radius: 25% 75% 56% 44% / 67% 28% 72% 33%; }
+}
+.hero-text { position: relative; z-index: 1; }
+.pill-tag {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: var(--white); border: 1px solid var(--border);
+  color: var(--teal); font-size: 0.78rem; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 0.45rem 1rem; border-radius: 2rem; margin-bottom: 1.8rem;
+  box-shadow: 0 2px 12px rgba(12,30,58,0.06);
+  animation: slideDown 0.7s cubic-bezier(.22,.61,.36,1) both;
+}
+.pill-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); animation: pulseGreen 2.2s ease infinite; }
+@keyframes pulseGreen { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.4; transform:scale(1.5); } }
+
+.hero h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(3rem, 5.5vw, 4.8rem); font-weight: 700; line-height: 1.1; margin-bottom: 1.5rem; animation: slideUp 0.8s cubic-bezier(.22,.61,.36,1) 0.1s both; }
+.hero h1 em { font-style: italic; color: var(--teal); }
+.hero p { font-size: 1.05rem; color: var(--muted); line-height: 1.78; max-width: 440px; margin-bottom: 2.8rem; font-weight: 300; animation: slideUp 0.8s cubic-bezier(.22,.61,.36,1) 0.2s both; }
+.hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; animation: slideUp 0.8s cubic-bezier(.22,.61,.36,1) 0.3s both; }
+
+.btn-primary { background: var(--navy); color: var(--white); padding: 0.9rem 2.2rem; border-radius: 2rem; font-size: 0.92rem; font-weight: 600; text-decoration: none; transition: background 0.25s, transform 0.2s, box-shadow 0.2s; display: inline-flex; align-items: center; gap: 0.6rem; }
+.btn-primary:hover { background: var(--teal); transform: translateY(-2px); box-shadow: 0 10px 32px rgba(31,127,127,0.3); }
+.btn-secondary { border: 1.5px solid var(--border); color: var(--navy); padding: 0.9rem 2.2rem; border-radius: 2rem; font-size: 0.92rem; font-weight: 500; text-decoration: none; transition: border-color 0.2s, color 0.2s, transform 0.2s; display: inline-flex; align-items: center; gap: 0.6rem; }
+.btn-secondary:hover { border-color: var(--teal); color: var(--teal); transform: translateY(-2px); }
+
+.hero-stats { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 1.2rem; animation: slideLeft 0.9s cubic-bezier(.22,.61,.36,1) 0.2s both; }
+.stat-card { background: var(--white); border: 1px solid var(--border); border-radius: 1.4rem; padding: 1.6rem 2rem; display: flex; align-items: center; gap: 1.4rem; box-shadow: 0 4px 24px rgba(12,30,58,0.06); transition: transform 0.25s, box-shadow 0.25s; }
+.stat-card:hover { transform: translateX(-6px); box-shadow: 0 12px 40px rgba(12,30,58,0.1); }
+.stat-card:nth-child(2) { margin-left: 2.5rem; }
+.stat-icon-wrap { width: 52px; height: 52px; border-radius: 1rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.stat-icon-wrap.teal { background: var(--teal-pale); }
+.stat-icon-wrap.gold { background: var(--gold-pale); }
+.stat-icon-wrap.dblue { background: #dce6f5; }
+.stat-num { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 700; line-height: 1; }
+.stat-label { font-size: 0.82rem; color: var(--muted); margin-top: 0.15rem; font-weight: 400; }
+
+@keyframes slideDown { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
+@keyframes slideUp   { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:translateY(0); } }
+@keyframes slideLeft { from { opacity:0; transform:translateX(40px); } to { opacity:1; transform:translateX(0); } }
+
+/* SECTIONS */
+section { padding: 7rem 6%; }
+.section-tag { display: inline-flex; align-items: center; gap: 0.6rem; font-size: 0.76rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--teal); margin-bottom: 1rem; }
+.tag-line { width: 24px; height: 1.5px; background: var(--teal); border-radius: 2px; flex-shrink: 0; }
+.section-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.2rem, 3.5vw, 3.2rem); font-weight: 700; line-height: 1.15; margin-bottom: 1rem; }
+.section-sub { color: var(--muted); font-size: 1rem; line-height: 1.75; max-width: 540px; font-weight: 300; }
+.section-head { margin-bottom: 4rem; }
+
+/* REVEAL */
+.reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.7s cubic-bezier(.22,.61,.36,1), transform 0.7s cubic-bezier(.22,.61,.36,1); }
+.reveal.d1 { transition-delay: 0.1s; }
+.reveal.d2 { transition-delay: 0.2s; }
+.reveal.d3 { transition-delay: 0.3s; }
+.reveal.d4 { transition-delay: 0.4s; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ANATOMY */
+#anatomy { background: var(--cream); }
+.anatomy-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.4rem; }
+.anatomy-card { background: var(--white); border: 1px solid var(--border); border-radius: 1.6rem; padding: 2.2rem 2rem; position: relative; overflow: hidden; transition: transform 0.3s cubic-bezier(.22,.61,.36,1), box-shadow 0.3s; }
+.anatomy-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--teal), var(--teal-light)); transform: scaleX(0); transform-origin: left; transition: transform 0.4s cubic-bezier(.22,.61,.36,1); }
+.anatomy-card:hover { transform: translateY(-8px); box-shadow: 0 20px 56px rgba(12,30,58,0.1); }
+.anatomy-card:hover::before { transform: scaleX(1); }
+.anat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.2rem; background: var(--teal-pale); transition: background 0.3s, transform 0.3s; }
+.anatomy-card:hover .anat-icon { background: var(--teal); transform: rotate(6deg) scale(1.05); }
+.anatomy-card:hover .anat-icon svg { color: var(--white); }
+.anat-icon svg { color: var(--teal); transition: color 0.3s; }
+.anatomy-card h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; margin-bottom: 0.6rem; }
+.anatomy-card p { font-size: 0.88rem; color: var(--muted); line-height: 1.7; font-weight: 300; }
+
+/* STUDIES */
+#studies { background: var(--navy); }
+#studies .section-tag { color: var(--teal-light); }
+#studies .tag-line { background: var(--teal-light); }
+#studies .section-title { color: var(--white); }
+#studies .section-sub { color: rgba(255,255,255,0.5); }
+.studies-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: start; }
+.timeline { display: flex; flex-direction: column; }
+.timeline-item { display: flex; gap: 1.5rem; position: relative; padding-bottom: 2.5rem; }
+.timeline-item:last-child { padding-bottom: 0; }
+.t-left { display: flex; flex-direction: column; align-items: center; }
+.t-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--teal); flex-shrink: 0; box-shadow: 0 0 0 4px rgba(47,168,168,0.2); margin-top: 4px; transition: transform 0.2s, box-shadow 0.2s; }
+.timeline-item:hover .t-dot { transform: scale(1.35); box-shadow: 0 0 0 6px rgba(47,168,168,0.25); }
+.t-line { width: 1px; background: rgba(255,255,255,0.08); flex: 1; margin-top: 8px; }
+.timeline-item:last-child .t-line { display: none; }
+.t-year { font-size: 0.74rem; font-weight: 600; letter-spacing: 0.1em; color: var(--gold); text-transform: uppercase; margin-bottom: 0.4rem; }
+.t-content h4 { font-size: 1rem; font-weight: 500; color: var(--white); margin-bottom: 0.3rem; }
+.t-content p { font-size: 0.87rem; color: rgba(255,255,255,0.5); line-height: 1.65; font-weight: 300; }
+.spec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.spec-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 1.2rem; padding: 1.4rem; transition: background 0.25s, border-color 0.25s, transform 0.25s; }
+.spec-card:hover { background: rgba(47,168,168,0.1); border-color: rgba(47,168,168,0.3); transform: translateY(-4px); }
+.spec-icon { width: 40px; height: 40px; border-radius: 10px; background: rgba(47,168,168,0.15); display: flex; align-items: center; justify-content: center; margin-bottom: 0.8rem; }
+.spec-icon svg { color: var(--teal-light); }
+.spec-card h5 { font-size: 0.9rem; font-weight: 500; color: var(--white); margin-bottom: 0.3rem; }
+.spec-card p { font-size: 0.8rem; color: rgba(255,255,255,0.45); line-height: 1.5; font-weight: 300; }
+
+/* SERVICES */
+#services { background: var(--ivory); }
+.services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.4rem; }
+.service-card { border: 1px solid var(--border); border-radius: 1.6rem; padding: 2.4rem 2rem; transition: all 0.3s cubic-bezier(.22,.61,.36,1); background: var(--white); position: relative; overflow: hidden; }
+.service-card::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, var(--teal), var(--navy-mid)); opacity: 0; transition: opacity 0.3s; z-index: 0; }
+.service-card:hover { transform: translateY(-6px); box-shadow: 0 24px 60px rgba(31,127,127,0.2); border-color: transparent; }
+.service-card:hover::after { opacity: 1; }
+.service-card > * { position: relative; z-index: 1; }
+.service-card:hover h3, .service-card:hover p, .service-card:hover .svc-meta { color: rgba(255,255,255,0.9); }
+.service-card:hover .svc-meta { color: rgba(255,255,255,0.65); }
+.service-card:hover .svc-icon-wrap { background: rgba(255,255,255,0.15); }
+.service-card:hover .svc-icon-wrap svg { color: var(--white); }
+.svc-icon-wrap { width: 52px; height: 52px; border-radius: 14px; background: var(--teal-pale); display: flex; align-items: center; justify-content: center; margin-bottom: 1.4rem; transition: background 0.3s; }
+.svc-icon-wrap svg { color: var(--teal); transition: color 0.3s; }
+.service-card h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; font-weight: 600; margin-bottom: 0.6rem; transition: color 0.3s; }
+.service-card p { font-size: 0.87rem; color: var(--muted); line-height: 1.68; margin-bottom: 1rem; font-weight: 300; transition: color 0.3s; }
+.svc-meta { font-size: 0.75rem; color: var(--teal); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; transition: color 0.3s; }
+
+/* TEETH TYPES */
+#teeth-types { background: var(--cream); }
+.teeth-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 1.2rem; }
+.tooth-card { background: var(--white); border: 1px solid var(--border); border-radius: 1.4rem; padding: 2rem 1.5rem; text-align: center; transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s; }
+.tooth-card:hover { transform: translateY(-6px); box-shadow: 0 16px 48px rgba(12,30,58,0.09); border-color: var(--teal-pale); }
+.tooth-icon-wrap { width: 64px; height: 64px; border-radius: 50%; background: var(--teal-pale); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.1rem; transition: background 0.25s, transform 0.25s; }
+.tooth-card:hover .tooth-icon-wrap { background: var(--teal); transform: rotate(-8deg) scale(1.05); }
+.tooth-card:hover .tooth-icon-wrap svg { color: var(--white); }
+.tooth-icon-wrap svg { color: var(--teal); transition: color 0.25s; }
+.tooth-count { display: inline-block; background: var(--teal-pale); color: var(--teal); font-size: 0.73rem; font-weight: 600; letter-spacing: 0.08em; padding: 0.2rem 0.8rem; border-radius: 2rem; margin-bottom: 0.7rem; }
+.tooth-card h4 { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; }
+.tooth-card p { font-size: 0.83rem; color: var(--muted); line-height: 1.65; font-weight: 300; }
+
+/* TIPS */
+#tips { background: var(--ivory); }
+.tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.4rem; }
+.tip-card { background: var(--cream); border: 1px solid var(--border); border-radius: 1.4rem; padding: 2rem; display: flex; gap: 1.4rem; align-items: flex-start; transition: transform 0.25s, box-shadow 0.25s; }
+.tip-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(12,30,58,0.08); }
+.tip-num-wrap { flex-shrink: 0; width: 44px; height: 44px; border-radius: 12px; background: var(--white); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; }
+.tip-num { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 700; color: var(--teal); }
+.tip-card h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.4rem; }
+.tip-card p { font-size: 0.86rem; color: var(--muted); line-height: 1.65; font-weight: 300; }
+
+/* CONTACT */
+#contact { background: var(--navy); padding: 7rem 6%; text-align: center; position: relative; overflow: hidden; }
+#contact::before { content: ''; position: absolute; top: -50%; left: 50%; transform: translateX(-50%); width: 700px; height: 700px; border-radius: 50%; background: radial-gradient(ellipse, rgba(47,168,168,0.14) 0%, transparent 65%); pointer-events: none; }
+#contact .section-tag { color: var(--teal-light); justify-content: center; }
+#contact .tag-line { background: var(--teal-light); }
+#contact h2 { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.2rem, 4vw, 3.4rem); font-weight: 700; color: var(--white); margin-bottom: 1rem; position: relative; }
+#contact p { color: rgba(255,255,255,0.55); font-size: 1rem; margin-bottom: 3rem; font-weight: 300; position: relative; }
+.cta-group { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; position: relative; }
+.btn-white { background: var(--white); color: var(--navy); padding: 0.95rem 2.4rem; border-radius: 2rem; font-size: 0.92rem; font-weight: 600; text-decoration: none; transition: background 0.25s, color 0.25s, transform 0.2s; display: inline-flex; align-items: center; gap: 0.6rem; }
+.btn-white:hover { background: var(--teal); color: var(--white); transform: translateY(-2px); }
+.btn-ghost { border: 1.5px solid rgba(255,255,255,0.25); color: rgba(255,255,255,0.85); padding: 0.95rem 2.4rem; border-radius: 2rem; font-size: 0.92rem; font-weight: 500; text-decoration: none; transition: border-color 0.25s, color 0.25s, transform 0.2s; display: inline-flex; align-items: center; gap: 0.6rem; }
+.btn-ghost:hover { border-color: var(--teal-light); color: var(--teal-light); transform: translateY(-2px); }
+
+/* FOOTER */
+footer { background: #080f1e; color: rgba(255,255,255,0.35); padding: 2rem 6%; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; font-size: 0.83rem; }
+footer .logo { font-size: 1.1rem; color: rgba(255,255,255,0.5); }
+footer .logo em { color: var(--teal-light); }
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .nav-links { display: none; }
+  .hamburger { display: flex; }
+  .hero { grid-template-columns: 1fr; gap: 3rem; padding: 8rem 6% 4rem; }
+  .hero-stats { display: none; }
+  .studies-layout { grid-template-columns: 1fr; gap: 3rem; }
+  .spec-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .hero h1 { font-size: 2.6rem; }
+  footer { flex-direction: column; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#anatomy" class="m-link">Anatomy</a>
+  <a href="#studies" class="m-link">Education</a>
+  <a href="#services" class="m-link">Services</a>
+  <a href="#teeth-types" class="m-link">Teeth Types</a>
+  <a href="#tips" class="m-link">Care Tips</a>
+  <a href="#contact" class="m-link m-cta">Book Now</a>
+</div>
+
+<!-- NAVBAR -->
+<nav id="navbar">
+  <a href="#home" class="logo">Pearl<em>Dent</em></a>
+  <ul class="nav-links">
+    <li><a href="#anatomy">Anatomy</a></li>
+    <li><a href="#studies">Education</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#teeth-types">Teeth Types</a></li>
+    <li><a href="#tips">Care Tips</a></li>
+    <li><a href="#contact" class="nav-cta">Book Now</a></li>
+  </ul>
+  <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-bg"></div>
+  <div class="hero-blob"></div>
+  <div class="hero-text">
+    <div class="pill-tag"><div class="pill-dot"></div>Trusted Dental Care</div>
+    <h1>Your Smile Is Our <em>Science</em> & Art</h1>
+    <p>Modern dentistry backed by years of rigorous study. We combine cutting-edge techniques with compassionate care to give you the healthiest, most confident smile possible.</p>
+    <div class="hero-btns">
+      <a href="#services" class="btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Explore Services
+      </a>
+      <a href="#studies" class="btn-secondary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+        What Dentists Study
+      </a>
+    </div>
+  </div>
+  <div class="hero-stats">
+    <div class="stat-card">
+      <div class="stat-icon-wrap teal">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1f7f7f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+      </div>
+      <div><div class="stat-num">8+</div><div class="stat-label">Years of dental education</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon-wrap gold">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#b8933a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <div><div class="stat-num">32</div><div class="stat-label">Adult teeth in the human mouth</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon-wrap dblue">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#163256" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </div>
+      <div><div class="stat-num">200+</div><div class="stat-label">Dental conditions studied</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ANATOMY -->
+<section id="anatomy">
+  <div class="section-head reveal">
+    <div class="section-tag"><span class="tag-line"></span>Understanding Teeth</div>
+    <h2 class="section-title">The Anatomy of a Tooth</h2>
+    <p class="section-sub">Every tooth is a complex structure made of several distinct layers, each playing a crucial role in function and long-term protection.</p>
+  </div>
+  <div class="anatomy-grid">
+    <div class="anatomy-card reveal d1">
+      <div class="anat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+      <h3>Enamel</h3>
+      <p>The hardest substance in the human body, enamel forms the outer protective shell of the crown. It is 96% mineral and shields the inner layers from decay, acids, and physical wear over a lifetime.</p>
+    </div>
+    <div class="anatomy-card reveal d2">
+      <div class="anat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg></div>
+      <h3>Dentin</h3>
+      <p>Beneath the enamel lies dentin, a yellowish porous tissue that makes up the majority of the tooth. It contains microscopic tubules that transmit sensations to the nerve, causing sensitivity when exposed.</p>
+    </div>
+    <div class="anatomy-card reveal d3">
+      <div class="anat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+      <h3>Pulp</h3>
+      <p>The living core of the tooth. The pulp chamber houses blood vessels, nerves, and connective tissue. It nourishes the tooth and signals pain when infection or structural damage occurs.</p>
+    </div>
+    <div class="anatomy-card reveal d1">
+      <div class="anat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M3 9h18M9 21V9"/></svg></div>
+      <h3>Cementum</h3>
+      <p>A bone-like tissue covering the root surface, cementum anchors the periodontal ligament connecting the tooth to the jawbone, providing stability and slight flexibility during chewing.</p>
+    </div>
+    <div class="anatomy-card reveal d2">
+      <div class="anat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></div>
+      <h3>Periodontal Ligament</h3>
+      <p>A network of fibrous connective tissue that suspends the tooth within its bony socket. It cushions bite forces and contains sensory receptors that help gauge chewing pressure.</p>
+    </div>
+    <div class="anatomy-card reveal d3">
+      <div class="anat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20M6 20V10l6-6 6 6v10"/><path d="M10 20v-5h4v5"/></svg></div>
+      <h3>Alveolar Bone</h3>
+      <p>The jawbone forming the sockets that house the tooth roots. It continuously remodels in response to bite forces and is the structure that anchors dental implants in restorative procedures.</p>
+    </div>
+  </div>
+</section>
+
+<!-- STUDIES -->
+<section id="studies">
+  <div class="studies-layout">
+    <div>
+      <div class="section-head reveal">
+        <div class="section-tag"><span class="tag-line" style="background:var(--teal-light)"></span>Dental Education</div>
+        <h2 class="section-title">What Dentists Study for 8+ Years</h2>
+        <p class="section-sub">Becoming a dentist requires deep mastery of biology, anatomy, medicine, and hands-on clinical skill.</p>
+      </div>
+      <div class="timeline">
+        <div class="timeline-item reveal d1">
+          <div class="t-left"><div class="t-dot"></div><div class="t-line"></div></div>
+          <div class="t-content">
+            <div class="t-year">Years 1–2 · Pre-clinical Sciences</div>
+            <h4>Anatomy & Histology</h4>
+            <p>Intensive study of head, neck, and oral structures — bones, muscles, nerves, and blood vessels — plus microscopic examination of all dental tissues.</p>
+          </div>
+        </div>
+        <div class="timeline-item reveal d2">
+          <div class="t-left"><div class="t-dot"></div><div class="t-line"></div></div>
+          <div class="t-content">
+            <div class="t-year">Years 1–2 · Biomedical Foundations</div>
+            <h4>Microbiology & Pathology</h4>
+            <p>How bacteria, fungi, and viruses cause oral disease. Understanding immune responses, inflammation, infection, and tissue disease at a cellular level.</p>
+          </div>
+        </div>
+        <div class="timeline-item reveal d3">
+          <div class="t-left"><div class="t-dot"></div><div class="t-line"></div></div>
+          <div class="t-content">
+            <div class="t-year">Years 2–3 · Applied Sciences</div>
+            <h4>Pharmacology & Radiology</h4>
+            <p>Drug interactions, local anesthetics, antibiotics for dental use. Reading X-rays, CBCT scans, and understanding radiation safety in diagnosis.</p>
+          </div>
+        </div>
+        <div class="timeline-item reveal d4">
+          <div class="t-left"><div class="t-dot"></div><div class="t-line"></div></div>
+          <div class="t-content">
+            <div class="t-year">Years 3–4 · Clinical Practice</div>
+            <h4>Operative Dentistry & Surgery</h4>
+            <p>Hands-on cavity preparation, restorations, extractions, and minor oral surgery under supervised clinical rotations with real patients.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="reveal d2">
+      <h3 style="font-family:'Cormorant Garamond',serif; font-size:1.5rem; color:var(--white); margin-bottom:0.5rem; font-weight:600;">Dental Specializations</h3>
+      <p style="color:rgba(255,255,255,0.45); font-size:0.87rem; margin-bottom:1.8rem; font-weight:300;">After their degree, dentists may pursue 2–4 years of additional specialty training.</p>
+      <div class="spec-grid">
+        <div class="spec-card">
+          <div class="spec-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3M8 22h8"/></svg></div>
+          <h5>Orthodontics</h5><p>Teeth and jaw alignment using braces and clear aligners.</p>
+        </div>
+        <div class="spec-card">
+          <div class="spec-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l9.84-9.84a5.5 5.5 0 0 0 0-6.78z"/></svg></div>
+          <h5>Endodontics</h5><p>Root canals, pulp disease, and periapical infections.</p>
+        </div>
+        <div class="spec-card">
+          <div class="spec-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+          <h5>Periodontics</h5><p>Gum disease, bone loss, and dental implant placement.</p>
+        </div>
+        <div class="spec-card">
+          <div class="spec-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="3"/><path d="M16 7V5a4 4 0 0 0-8 0v2"/></svg></div>
+          <h5>Prosthodontics</h5><p>Crowns, bridges, dentures, and implant prosthetics.</p>
+        </div>
+        <div class="spec-card">
+          <div class="spec-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <h5>Pediatric Dentistry</h5><p>Dental care for children from infancy through adolescence.</p>
+        </div>
+        <div class="spec-card">
+          <div class="spec-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+          <h5>Oral Surgery</h5><p>Complex extractions, jaw surgery, and facial trauma.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="section-head reveal">
+    <div class="section-tag"><span class="tag-line"></span>Our Services</div>
+    <h2 class="section-title">Comprehensive Dental Care</h2>
+    <p class="section-sub">From routine check-ups to advanced restorative and cosmetic procedures — every aspect of your oral health, covered.</p>
+  </div>
+  <div class="services-grid">
+    <div class="service-card reveal d1">
+      <div class="svc-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
+      <h3>Dental Examination</h3>
+      <p>Complete oral health assessment including X-rays, periodontal charting, oral cancer screening, and bite analysis. Prevention starts here.</p>
+      <div class="svc-meta">Recommended every 6 months</div>
+    </div>
+    <div class="service-card reveal d2">
+      <div class="svc-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <h3>Professional Cleaning</h3>
+      <p>Removal of plaque, tartar, and surface stains through scaling and polishing. Essential protection against gum disease and decay.</p>
+      <div class="svc-meta">Twice yearly for most patients</div>
+    </div>
+    <div class="service-card reveal d3">
+      <div class="svc-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+      <h3>Tooth Fillings</h3>
+      <p>Restoration of teeth damaged by decay using tooth-colored composite resin. We preserve as much natural tooth structure as possible.</p>
+      <div class="svc-meta">Composite · Amalgam · Glass Ionomer</div>
+    </div>
+    <div class="service-card reveal d1">
+      <div class="svc-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7z"/></svg></div>
+      <h3>Crowns & Bridges</h3>
+      <p>Custom-fitted caps that restore broken or heavily decayed teeth. Bridges replace missing teeth using adjacent teeth as anchors.</p>
+      <div class="svc-meta">Ceramic · Zirconia · Porcelain-fused</div>
+    </div>
+    <div class="service-card reveal d2">
+      <div class="svc-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+      <h3>Teeth Whitening</h3>
+      <p>Professional-grade bleaching that lightens teeth up to 8 shades. Far more effective and safer than any over-the-counter solution.</p>
+      <div class="svc-meta">In-office or take-home kits</div>
+    </div>
+    <div class="service-card reveal d3">
+      <div class="svc-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+      <h3>Dental Implants</h3>
+      <p>Titanium posts surgically placed in the jawbone to support crowns or bridges — the gold standard for permanent tooth replacement.</p>
+      <div class="svc-meta">Permanent · 95%+ success rate</div>
+    </div>
+    <div class="service-card reveal d1">
+      <div class="svc-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg></div>
+      <h3>Orthodontics</h3>
+      <p>Straightening teeth and correcting bites using traditional braces or clear aligners. Personalized treatment plans for teens and adults.</p>
+      <div class="svc-meta">Braces · Clear Aligners</div>
+    </div>
+    <div class="service-card reveal d2">
+      <div class="svc-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+      <h3>Root Canal Therapy</h3>
+      <p>Saving infected teeth by removing damaged pulp, disinfecting canals, and sealing with biocompatible material — painless with modern anesthesia.</p>
+      <div class="svc-meta">Saves your natural tooth</div>
+    </div>
+  </div>
+</section>
+
+<!-- TEETH TYPES -->
+<section id="teeth-types">
+  <div class="section-head reveal">
+    <div class="section-tag"><span class="tag-line"></span>Your 32 Teeth</div>
+    <h2 class="section-title">Types of Teeth & Their Roles</h2>
+    <p class="section-sub">Each type of tooth has a unique shape perfectly designed for its specific function in biting, tearing, and grinding food.</p>
+  </div>
+  <div class="teeth-row">
+    <div class="tooth-card reveal d1">
+      <div class="tooth-icon-wrap"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></div>
+      <div class="tooth-count">8 teeth</div>
+      <h4>Incisors</h4>
+      <p>The 8 front teeth with a sharp, flat edge for biting and cutting food. First to emerge in infants around 6 months of age.</p>
+    </div>
+    <div class="tooth-card reveal d2">
+      <div class="tooth-icon-wrap"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+      <div class="tooth-count">4 teeth</div>
+      <h4>Canines</h4>
+      <p>Pointed corner teeth designed to grip, tear, and puncture food. They have the longest roots of any tooth in your mouth.</p>
+    </div>
+    <div class="tooth-card reveal d3">
+      <div class="tooth-icon-wrap"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg></div>
+      <div class="tooth-count">8 teeth</div>
+      <h4>Premolars</h4>
+      <p>Bicuspids with two cusps and a flat surface for crushing and tearing food. They transition between canines and molars.</p>
+    </div>
+    <div class="tooth-card reveal d1">
+      <div class="tooth-icon-wrap"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="3"/><path d="M16 7V5a4 4 0 0 0-8 0v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg></div>
+      <div class="tooth-count">8 teeth</div>
+      <h4>Molars</h4>
+      <p>Large back teeth with multiple cusps for grinding food into small, digestible pieces. They bear the heaviest chewing forces.</p>
+    </div>
+    <div class="tooth-card reveal d2">
+      <div class="tooth-icon-wrap"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg></div>
+      <div class="tooth-count">4 teeth</div>
+      <h4>Wisdom Teeth</h4>
+      <p>Third molars emerging in late teens or 20s. Often impacted or misaligned, frequently requiring extraction when they cause problems.</p>
+    </div>
+  </div>
+</section>
+
+<!-- TIPS -->
+<section id="tips">
+  <div class="section-head reveal">
+    <div class="section-tag"><span class="tag-line"></span>Daily Oral Care</div>
+    <h2 class="section-title">Essential Dental Care Tips</h2>
+    <p class="section-sub">Healthy teeth for life come down to consistent daily habits. These evidence-based practices make the biggest difference.</p>
+  </div>
+  <div class="tips-grid">
+    <div class="tip-card reveal d1">
+      <div class="tip-num-wrap"><div class="tip-num">01</div></div>
+      <div><h4>Brush Twice Daily — Correctly</h4><p>Use a soft-bristled brush at a 45° angle to the gumline. Brush for at least 2 minutes using gentle circular motions. Fluoride toothpaste is essential for enamel protection.</p></div>
+    </div>
+    <div class="tip-card reveal d2">
+      <div class="tip-num-wrap"><div class="tip-num">02</div></div>
+      <div><h4>Floss Every Single Day</h4><p>Brushing only cleans 60% of tooth surfaces. Flossing removes plaque and food from between teeth and under the gumline where cavities love to form.</p></div>
+    </div>
+    <div class="tip-card reveal d3">
+      <div class="tip-num-wrap"><div class="tip-num">03</div></div>
+      <div><h4>Limit Sugar & Acidic Foods</h4><p>Bacteria feed on sugars and produce acid that erodes enamel. Soda, candy, and sports drinks are the biggest culprits. Rinse with water after consuming them.</p></div>
+    </div>
+    <div class="tip-card reveal d1">
+      <div class="tip-num-wrap"><div class="tip-num">04</div></div>
+      <div><h4>Stay Hydrated — Drink Water</h4><p>Saliva neutralizes acids, washes away bacteria, and remineralizes enamel. Fluoridated tap water also directly strengthens tooth enamel over time.</p></div>
+    </div>
+    <div class="tip-card reveal d2">
+      <div class="tip-num-wrap"><div class="tip-num">05</div></div>
+      <div><h4>Visit Your Dentist Regularly</h4><p>Professional cleanings remove tartar that brushing cannot reach. Early detection of cavities, gum disease, and oral cancer dramatically improves outcomes.</p></div>
+    </div>
+    <div class="tip-card reveal d3">
+      <div class="tip-num-wrap"><div class="tip-num">06</div></div>
+      <div><h4>Wear a Mouthguard When Needed</h4><p>If you grind your teeth at night or play contact sports, a custom mouthguard protects against fractures, wear, and jaw joint damage. Ask your dentist for a fitted guard.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-tag reveal" style="justify-content:center;"><span class="tag-line" style="background:var(--teal-light)"></span>Get Started</div>
+  <h2 class="reveal">Ready for a Healthier Smile?</h2>
+  <p class="reveal">Schedule your comprehensive dental examination today. Your journey to optimal oral health starts with a single appointment.</p>
+  <div class="cta-group reveal">
+    <a href="#" class="btn-white">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Book an Appointment
+    </a>
+    <a href="tel:+1234567890" class="btn-ghost">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 19z"/></svg>
+      Call Us Today
+    </a>
+  </div>
+</section>
+
+<footer>
+  <a href="#home" class="logo">Pearl<em>Dent</em></a>
+  <span>© 2026 PearlDent Dental Clinic. For educational purposes — consult your dentist for personal advice.</span>
+</footer>
+
+<script>
+// PROGRESS BAR
+const pb = document.getElementById('progressBar');
+window.addEventListener('scroll', () => {
+  const pct = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+  pb.style.width = pct + '%';
+}, { passive: true });
+
+// NAVBAR SCROLL STATE
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 60);
+}, { passive: true });
+
+// ACTIVE NAV LINK ON SCROLL
+const sections = document.querySelectorAll('section[id]');
+const links = document.querySelectorAll('.nav-links a:not(.nav-cta)');
+const sectionObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      links.forEach(a => a.classList.remove('active'));
+      const match = document.querySelector(`.nav-links a[href="#${entry.target.id}"]`);
+      if (match) match.classList.add('active');
+    }
+  });
+}, { threshold: 0.45 });
+sections.forEach(s => sectionObserver.observe(s));
+
+// HAMBURGER / MOBILE MENU
+const hamburger = document.getElementById('hamburger');
+const mobileMenu = document.getElementById('mobileMenu');
+hamburger.addEventListener('click', () => {
+  const isOpen = hamburger.classList.toggle('open');
+  if (isOpen) {
+    mobileMenu.style.display = 'flex';
+    requestAnimationFrame(() => mobileMenu.classList.add('open'));
+  } else {
+    mobileMenu.classList.remove('open');
+    setTimeout(() => { mobileMenu.style.display = 'none'; }, 350);
+  }
+  document.body.style.overflow = isOpen ? 'hidden' : '';
+});
+document.querySelectorAll('.m-link').forEach(link => {
+  link.addEventListener('click', () => {
+    hamburger.classList.remove('open');
+    mobileMenu.classList.remove('open');
+    setTimeout(() => { mobileMenu.style.display = 'none'; }, 350);
+    document.body.style.overflow = '';
+  });
+});
+
+// SCROLL REVEAL
+const revealObs = new IntersectionObserver((entries) => {
+  entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+// CUSTOM CURSOR
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx = -100, my = -100, rx = -100, ry = -100;
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = (mx - 5) + 'px';
+  cursor.style.top  = (my - 5) + 'px';
+}, { passive: true });
+(function animRing() {
+  rx += (mx - rx) * 0.12;
+  ry += (my - ry) * 0.12;
+  ring.style.left = (rx - 18) + 'px';
+  ring.style.top  = (ry - 18) + 'px';
+  requestAnimationFrame(animRing);
+})();
+const hoverEls = document.querySelectorAll('a, button, .anatomy-card, .service-card, .tooth-card, .tip-card, .stat-card, .spec-card');
+hoverEls.forEach(el => {
+  el.addEventListener('mouseenter', () => { cursor.style.transform = 'scale(2.5)'; ring.style.transform = 'scale(1.6)'; ring.style.opacity = '0.2'; });
+  el.addEventListener('mouseleave', () => { cursor.style.transform = 'scale(1)'; ring.style.transform = 'scale(1)'; ring.style.opacity = '0.5'; });
+});
+
+// SMOOTH SCROLL
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  });
+});
+</script>
+</body>
+</html>
